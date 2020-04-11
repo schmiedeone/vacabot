@@ -1,0 +1,63 @@
+[
+    {
+       "type":"section",
+       "text":{
+          "type":"mrkdwn",
+          "text":"*Add Vacation!*\nBalance: ${vacationLeft} Days"
+       }
+    },
+    {
+       "type":"section",
+       "text":{
+          "type":"mrkdwn",
+          "text":"From Date"
+       },
+       "accessory":{
+          "type":"datepicker",
+          "initial_date":"2020-02-30",
+          "placeholder":{
+             "type":"plain_text",
+             "text":"Select a date",
+             "emoji":true
+          },
+          "action_id": "initDate"
+       },
+       "block_id": "${userVacationRecordId}"
+    },
+    {
+       "type":"section",
+       "text":{
+          "type":"mrkdwn",
+          "text":"To Date"
+       },
+       "accessory":{
+          "type":"datepicker",
+          "initial_date":"2020-02-30",
+          "placeholder":{
+             "type":"plain_text",
+             "text":"Select a date",
+             "emoji":true
+          },
+          "action_id": "endDate"
+       }
+    },
+    {
+       "type":"divider"
+    },
+    {
+       "type":"actions",
+       "elements":[
+          {
+             "type":"button",
+             "text":{
+                "type":"plain_text",
+                "emoji":true,
+                "text":"Confirm Plan"
+             },
+             "style":"primary",
+             "value":"click_me_123",
+             "action_id": "confirmVacation"
+          }
+       ]
+    }
+ ]
