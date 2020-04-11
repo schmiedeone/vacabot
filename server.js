@@ -1,4 +1,5 @@
 const http = require('http');
+const { parse } = require('querystring');
 
 http.createServer((request, response) => {
   const { headers, method, url } = request;
@@ -8,14 +9,29 @@ http.createServer((request, response) => {
   }).on('data', (chunk) => {
     body.push(chunk);
   }).on('end', () => {
-    body = Buffer.concat(body).toString();
-    console.log("URL", url)
-    console.log("Method", method)
-    console.log("Body", body)
+    body = parse(Buffer.concat(body).toString());
+    console.log(body)
+    processRequest(body)
 
-    const responseBody = { method, url, body };
-    response.write(JSON.stringify(responseBody));
+
+
+
+    response.writeHead(200, {'content-type':'application/json'});
+    response.write(JSON.stringify(body));
     response.end();
   });
   
 }).listen(80); 
+
+function processRequest(body) {
+  if(body.command) {
+    handleCommand(body)
+  } else {
+    handleInteractions(body)
+  }
+}
+
+
+function handleCommand() {}
+
+function handleInteractions() {}
