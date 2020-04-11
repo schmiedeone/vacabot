@@ -1,5 +1,8 @@
 const http = require('http');
 const { parse } = require('querystring');
+const axios = require('axios');
+axios.defaults.headers.post['Content-Type'] = 'application/json';
+axios.defaults.headers.post['Authorization'] = 'Bearer xoxb-165610094471-1044468471125-2tkSeVkmHUgh1QbOCPTEvPAt';
 
 http.createServer((request, response) => {
   const { headers, method, url } = request;
@@ -12,12 +15,7 @@ http.createServer((request, response) => {
     body = parse(Buffer.concat(body).toString());
     console.log(body)
     processRequest(body)
-
-
-
-
     response.writeHead(200, {'content-type':'application/json'});
-    // response.write(JSON.stringify(body));
     response.end();
   });
   
@@ -31,17 +29,22 @@ function processRequest(body) {
   }
 }
 
+const MODAL_OPEN_URL = 'https://slack.com/api/dialog.open';
 
 function handleCommand(body) {
   console.log("Handling Command!")
   let user = new User(body.user_id, body.user_name, null)
   const responseUrl = body.response_url
   const triggerId = body.trigger_id
-
-
+  trigger(MODAL_OPEN_URL, {
+    trigger_id: triggerId,
+    dialog: createVacationDialog(getVacationBalance())
+  })
 }
 
-
+function getVacationBalance(userId) {
+  return 10
+}
 
 function handleInteractions() {}
 
@@ -128,32 +131,88 @@ function createVacationTemplate(props) {
   } 
 }
 
-function httpClient(url, reqBody) {
-  const data = JSON.stringify(reqBody)
-  
-  const options = {
-    hostname: 'whatever.com',
-    port: 443,
-    path: '/todos',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': data.length
-    }
+function createVacationDialog(props) {
+  const { vacationLeft } = props;
+  return {
+    "type": "modal",
+    "callback_id": "create-vacation-modal",
+    "title": {
+      "type": "plain_text",
+      "text": "VacaBot",
+      "emoji": true
+    },
+    "submit": {
+      "type": "plain_text",
+      "text": "Submit",
+      "emoji": true
+    },
+    "close": {
+      "type": "plain_text",
+      "text": "Cancel",
+      "emoji": true
+    },
+    "blocks": [
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": `*Add Vacation!*\nBalance: _${vacationLeft}_ _Days_`
+        },
+        "block_id": "section1"
+      },
+      {
+        "type": "input",
+        "element": {
+          "type": "datepicker",
+          "placeholder": {
+            "type": "plain_text",
+            "text": "Select a date",
+            "emoji": true
+          }
+        },
+        "label": {
+          "type": "plain_text",
+          "text": "From",
+          "emoji": true
+        }
+      },
+      {
+        "type": "input",
+        "element": {
+          "type": "datepicker",
+          "placeholder": {
+            "type": "plain_text",
+            "text": "Select a date",
+            "emoji": true
+          }
+        },
+        "label": {
+          "type": "plain_text",
+          "text": "To",
+          "emoji": true
+        }
+      },
+      {
+        "type": "input",
+        "element": {
+          "type": "plain_text_input"
+        },
+        "label": {
+          "type": "plain_text",
+          "text": "Reason/Comment",
+          "emoji": true
+        }
+      }
+    ]
   }
-  
-  const req = https.request(options, res => {
-    console.log(`statusCode: ${res.statusCode}`)
-  
-    res.on('data', d => {
-      process.stdout.write(d)
-    })
+}
+
+function trigger(url, body) {
+  axios.post(url, body)
+  .then(function (response) {
+    console.log(JSON.stringify(response.data));
   })
-  
-  req.on('error', error => {
-    console.error(error)
-  })
-  
-  req.write(data)
-  req.end()
+  .catch(function (error) {
+    console.log(error);
+  });
 }
