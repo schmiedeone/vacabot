@@ -4,6 +4,10 @@ const axios = require('axios');
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.headers.post['Authorization'] = 'Bearer xoxb-165610094471-1044468471125-2tkSeVkmHUgh1QbOCPTEvPAt';
 const MODAL_OPEN_URL = 'https://slack.com/api/views.open';
+const Manager = {
+  name: 'Mukarram',
+  hook: 'https://hooks.slack.com/services/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'
+}
 
 http.createServer((request, response) => {
   const { headers, method, url } = request;
@@ -33,28 +37,24 @@ function processRequest(body) {
 
 function handleCommand(body) {
   console.log("Handling Command!")
-  let user = new User(body.user_id, body.user_name, null)
+  let user = new User(body.user_id, body.user_name)
   const responseUrl = body.response_url
   const triggerId = body.trigger_id
   trigger(MODAL_OPEN_URL, {
     trigger_id: triggerId,
-    view: createVacationDialog(getVacationBalance())
+    view: createVacationDialog(user.getVacationBalance())
   })
-}
-
-function getVacationBalance(userId) {
-  return 10;
 }
 
 function handleInteractions(payload) {
   console.log("Handling Interactions!")
-  const user = new User(payload.user.id, payload.user.username, null);
+  console.log("Payload:", payload)
+  const user = new User(payload.user.id, payload.user.username);
   if(payload.type == 'view_submission') {
     const formData = formSubmitData(payload);
-    const vacation = new Vacation(formData)
+    const vacation = new Vacation(user, formData);
 
-    console.log("Creating vacation for user:", user)
-    console.log("Vacation:", vacation)
+    vacation.notifyManager();
   }
 }
 
@@ -68,23 +68,29 @@ function formSubmitData(payload) {
 }
 
 class User {
-  constructor(userId, userName, channelId) {
+  constructor(userId, userName, channelId = null) {
     this.userId = userId;
     this.userName = userName;
     this.channelId = channelId;
   }
+  getVacationBalance() { return 10; }
 }
 
 class Vacation {
-  constructor({from, to, reason}) {
+  constructor(user, {from, to, reason}) {
+    this.user = user;
     this.from = from;
     this.to = to;
     this.reason = reason;
   }
+
+  notifyManager() {
+    const payload = approvalPayload(this.user, this)
+    trigger(Manager.hook, payload)
+  }
 }
 
-function createVacationDialog(props) {
-  const { vacationLeft } = props;
+function createVacationDialog(vacationBalance) {
   return {
     "type": "modal",
     "callback_id": "create-vacation-modal",
@@ -108,7 +114,7 @@ function createVacationDialog(props) {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": `*Add Vacation!*\nBalance: _${vacationLeft}_ _Days_`
+          "text": `*Add Vacation!*\nBalance: _${vacationBalance}_ _Days_`
         },
         "block_id": "section1"
       },
@@ -160,6 +166,48 @@ function createVacationDialog(props) {
           "emoji": true
         },
         "block_id": "reason"
+      }
+    ]
+  }
+}
+
+function approvalPayload(user, vacation) {
+  return {
+    "blocks": [
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": `Hi ${Manager.name}! ${user.userName} added his Vacation plans:\n*<https://calendar.google.com/calendar/b/1?cid=c2NobWllZGUub25lX2Z0Zmhtbm5hZG8xNGczMWRpZGhhZnFlYjQ4QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20|See In Calendar>*`
+        }
+      },
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": `*From:*\n${vacation.from}\n*To:*\n${vacation.to}\n*Comment:* ${vacation.reason}\n*Her/His Vacation Balance:* ${user.getVacationBalance()} Days`
+        },
+        "accessory": {
+          "type": "image",
+          "image_url": "https://api.slack.com/img/blocks/bkb_template_images/approvalsNewDevice.png",
+          "alt_text": "computer thumbnail"
+        }
+      },
+      {
+        "type": "actions",
+        "elements": [
+          {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "emoji": true,
+              "text": "Deny"
+            },
+            "style": "danger",
+            "value": "click_me_123",
+            "action_id": "deny_vacation"
+          }          
+        ]
       }
     ]
   }
