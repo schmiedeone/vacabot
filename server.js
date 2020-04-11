@@ -3,6 +3,7 @@ const { parse } = require('querystring');
 const axios = require('axios');
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.headers.post['Authorization'] = 'Bearer xoxb-165610094471-1044468471125-2tkSeVkmHUgh1QbOCPTEvPAt';
+const MODAL_OPEN_URL = 'https://slack.com/api/views.open';
 
 http.createServer((request, response) => {
   const { headers, method, url } = request;
@@ -13,7 +14,8 @@ http.createServer((request, response) => {
     body.push(chunk);
   }).on('end', () => {
     body = parse(Buffer.concat(body).toString());
-    console.log(body)
+    console.log("=========================\n")
+    console.log("RequestBody:", body)
     processRequest(body)
     response.writeHead(200, {'content-type':'application/json'});
     response.end();
@@ -25,11 +27,9 @@ function processRequest(body) {
   if(body.command) {
     handleCommand(body)
   } else {
-    handleInteractions(body)
+    handleInteractions(JSON.parse(body.payload))
   }
 }
-
-const MODAL_OPEN_URL = 'https://slack.com/api/dialog.open';
 
 function handleCommand(body) {
   console.log("Handling Command!")
@@ -38,15 +38,34 @@ function handleCommand(body) {
   const triggerId = body.trigger_id
   trigger(MODAL_OPEN_URL, {
     trigger_id: triggerId,
-    dialog: createVacationDialog(getVacationBalance())
+    view: createVacationDialog(getVacationBalance())
   })
 }
 
 function getVacationBalance(userId) {
-  return 10
+  return 10;
 }
 
-function handleInteractions() {}
+function handleInteractions(payload) {
+  console.log("Handling Interactions!")
+  const user = new User(payload.user.id, payload.user.username, null);
+  if(payload.type == 'view_submission') {
+    const formData = formSubmitData(payload);
+    const vacation = new Vacation(formData)
+
+    console.log("Creating vacation for user:", user)
+    console.log("Vacation:", vacation)
+  }
+}
+
+function formSubmitData(payload) {
+  const values = payload.view.state.values;
+  return {
+    from: values.from.from.selected_date,
+    to: values.to.to.selected_date,
+    reason: values.reason.reason.value
+  }
+}
 
 class User {
   constructor(userId, userName, channelId) {
@@ -57,78 +76,11 @@ class User {
 }
 
 class Vacation {
-  constructor(from, to) {
+  constructor({from, to, reason}) {
     this.from = from;
     this.to = to;
+    this.reason = reason;
   }
-}
-
-function createVacationTemplate(props) {
-  const { vacationLeft } = props;
-  return { "blocks":
-  [
-      {
-         "type":"section",
-         "text":{
-            "type":"mrkdwn",
-            "text":`*Add Vacation!*\nBalance: ${vacationLeft} Days`
-         }
-      },
-      {
-         "type":"section",
-         "text":{
-            "type":"mrkdwn",
-            "text":"From Date"
-         },
-         "accessory":{
-            "type":"datepicker",
-            "placeholder":{
-               "type":"plain_text",
-               "text":"Select a date",
-               "emoji":true
-            },
-            "action_id": "from"
-         },
-         "block_id": "${userVacationRecordId}"
-      },
-      {
-         "type":"section",
-         "text":{
-            "type":"mrkdwn",
-            "text":"To Date"
-         },
-         "accessory":{
-            "type":"datepicker",
-            "placeholder":{
-               "type":"plain_text",
-               "text":"Select a date",
-               "emoji":true
-            },
-            "action_id": "to"
-         }
-      },
-      {
-         "type":"divider"
-      },
-      {
-         "type":"actions",
-         "elements":[
-            {
-               "type":"button",
-               "text":{
-                  "type":"plain_text",
-                  "emoji":true,
-                  "text":"Confirm Plan"
-               },
-               "style":"primary",
-               "value":"click_me_123",
-               "action_id": "confirmVacation"
-            }
-         ]
-      }
-   ],
-   "text": "Create Vacation!"
-  } 
 }
 
 function createVacationDialog(props) {
@@ -168,13 +120,15 @@ function createVacationDialog(props) {
             "type": "plain_text",
             "text": "Select a date",
             "emoji": true
-          }
+          },
+          "action_id": "from"
         },
         "label": {
           "type": "plain_text",
           "text": "From",
           "emoji": true
-        }
+        },
+        "block_id": "from"
       },
       {
         "type": "input",
@@ -184,24 +138,28 @@ function createVacationDialog(props) {
             "type": "plain_text",
             "text": "Select a date",
             "emoji": true
-          }
+          },
+          "action_id": "to"
         },
         "label": {
           "type": "plain_text",
           "text": "To",
           "emoji": true
-        }
+        },
+        "block_id": "to"
       },
       {
         "type": "input",
         "element": {
-          "type": "plain_text_input"
+          "type": "plain_text_input",
+          "action_id": "reason"
         },
         "label": {
           "type": "plain_text",
           "text": "Reason/Comment",
           "emoji": true
-        }
+        },
+        "block_id": "reason"
       }
     ]
   }
@@ -210,7 +168,7 @@ function createVacationDialog(props) {
 function trigger(url, body) {
   axios.post(url, body)
   .then(function (response) {
-    console.log(JSON.stringify(response.data));
+    console.log("Response from trigger:", response.data);
   })
   .catch(function (error) {
     console.log(error);
