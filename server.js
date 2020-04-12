@@ -53,8 +53,15 @@ function handleInteractions(payload) {
   if(payload.type == 'view_submission') {
     const formData = formSubmitData(payload);
     const vacation = new Vacation(user, formData);
-
     vacation.notifyManager();
+  } else if(payload.type == 'block_actions') {
+    const action = payload.actions[0].action_id;
+    switch(action) {
+      case 'deny_vacation':
+        const vacation = Vacation.init(payload.actions[0].value);
+        console.log("Vacation has been denied:", vacation);
+        break;
+    }
   }
 }
 
@@ -88,6 +95,11 @@ class Vacation {
     const payload = approvalPayload(this.user, this)
     trigger(Manager.hook, payload)
   }
+}
+
+Vacation.init = function(value) {
+  const data = JSON.parse(value)
+  return new Vacation(data.user, data)
 }
 
 function createVacationDialog(vacationBalance) {
@@ -204,7 +216,7 @@ function approvalPayload(user, vacation) {
               "text": "Deny"
             },
             "style": "danger",
-            "value": "click_me_123",
+            "value": `${JSON.stringify(vacation)}`,
             "action_id": "deny_vacation"
           }          
         ]
