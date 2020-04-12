@@ -10,70 +10,6 @@ const Manager = {
   hook: 'https://hooks.slack.com/services/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'
 }
 
-http.createServer((request, response) => {
-  const { headers, method, url } = request;
-  let body = [];
-  request.on('error', (err) => {
-    console.error(err);
-  }).on('data', (chunk) => {
-    body.push(chunk);
-  }).on('end', () => {
-    body = parse(Buffer.concat(body).toString());
-    processRequest(body)
-    response.writeHead(200, {'content-type':'application/json'});
-    response.end();
-  });
-}).listen(80); 
-
-function processRequest(body) {
-  if(body.command) {
-    handleCommand(body)
-  } else {
-    handleInteractions(JSON.parse(body.payload))
-  }
-}
-
-function handleCommand(body) {
-  console.log("Handling Command!")
-  let user = new User(body.user_id, body.user_name)
-  const responseUrl = body.response_url
-  const triggerId = body.trigger_id
-  triggerSlack(MODAL_OPEN_URL, {
-    trigger_id: triggerId,
-    view: createVacationDialog(user.getVacationBalance())
-  })
-}
-
-function handleInteractions(payload) {
-  console.log("Handling Interactions! Type:", payload.type)
-  const user = new User(payload.user.id, payload.user.username);
-
-  if(payload.type == 'view_submission') {
-    const formData = formSubmitData(payload);
-    const vacation = new Vacation(user, formData);
-
-    vacation.notifyManager();
-  } else if(payload.type == 'block_actions') {
-    const action = payload.actions[0].action_id;
-    switch(action) {
-      case 'deny_vacation':
-        const vacation = Vacation.init(payload.actions[0].value);
-        vacation.denied();
-        vacation.notifyEmployee();
-        break;
-    }
-  }
-}
-
-function formSubmitData(payload) {
-  const values = payload.view.state.values;
-  return {
-    from: values.from.from.selected_date,
-    to: values.to.to.selected_date,
-    reason: values.reason.reason.value
-  }
-}
-
 class User {
   constructor(userId, userName, channelId = null) {
     this.userId = userId;
@@ -124,7 +60,18 @@ class Vacation {
 
   notifyManager() {
     const payload = approvalPayload(this.user, this)
-    triggerSlack(Manager.hook, payload)
+    getManager()
+    .then(manager => {
+      manager.getChannelId()
+      .then(channelId => {
+        triggerSlack(POST_MSG_URL, {
+          ...payload,
+          channel: channelId,
+        })
+        .then(data => console.log("Manager Notified!"))
+        .catch(console.log)
+      })
+    })
   }
 
   notifyEmployee() {
@@ -148,6 +95,81 @@ Vacation.init = function(value) {
   const data = JSON.parse(value)
   const user = new User(data.user.userId, data.user.userName)
   return new Vacation(user, data)
+}
+
+var currentManager = new User('UQF3YAKAT', 'mukarram.ali89', null)
+
+function getManager() {
+  return new Promise((resolve, reject) => {
+    resolve(currentManager);
+  });
+}
+
+function setManager(user) {
+  currentManager = user;
+}
+
+http.createServer((request, response) => {
+  let body = [];
+  request.on('error', (err) => {
+    console.error(err);
+  }).on('data', (chunk) => {
+    body.push(chunk);
+  }).on('end', () => {
+    body = parse(Buffer.concat(body).toString());
+    handler(body)
+    response.writeHead(200, {'content-type':'application/json'});
+    response.end();
+  });
+}).listen(80); 
+
+function handler(body) {
+  if(body.command) {
+    handleCommand(body)
+  } else {
+    handleInteractions(JSON.parse(body.payload))
+  }
+}
+
+function handleCommand(body) {
+  console.log("Handling Command!")
+  let user = new User(body.user_id, body.user_name)
+  const responseUrl = body.response_url
+  const triggerId = body.trigger_id
+  triggerSlack(MODAL_OPEN_URL, {
+    trigger_id: triggerId,
+    view: createVacationDialog(user.getVacationBalance())
+  })
+}
+
+function handleInteractions(payload) {
+  console.log("Handling Interactions! Type:", payload.type)
+  const user = new User(payload.user.id, payload.user.username);
+
+  if(payload.type == 'view_submission') {
+    const formData = formSubmitData(payload);
+    const vacation = new Vacation(user, formData);
+
+    vacation.notifyManager();
+  } else if(payload.type == 'block_actions') {
+    const action = payload.actions[0].action_id;
+    switch(action) {
+      case 'deny_vacation':
+        const vacation = Vacation.init(payload.actions[0].value);
+        vacation.denied();
+        vacation.notifyEmployee();
+        break;
+    }
+  }
+}
+
+function formSubmitData(payload) {
+  const values = payload.view.state.values;
+  return {
+    from: values.from.from.selected_date,
+    to: values.to.to.selected_date,
+    reason: values.reason.reason.value
+  }
 }
 
 function createVacationDialog(vacationBalance) {
