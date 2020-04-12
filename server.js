@@ -1,8 +1,6 @@
 const http = require('http');
+const https = require('https')
 const { parse } = require('querystring');
-const axios = require('axios');
-axios.defaults.headers.post['Content-Type'] = 'application/json';
-axios.defaults.headers.post['Authorization'] = 'Bearer xoxb-165610094471-1044468471125-2tkSeVkmHUgh1QbOCPTEvPAt';
 const MODAL_OPEN_URL = 'https://slack.com/api/views.open';
 const CHANNEL_ID_URL = 'https://slack.com/api/conversations.open';
 const POST_MSG_URL = 'https://slack.com/api/chat.postMessage';
@@ -40,7 +38,7 @@ function handleCommand(body) {
   let user = new User(body.user_id, body.user_name)
   const responseUrl = body.response_url
   const triggerId = body.trigger_id
-  trigger(MODAL_OPEN_URL, {
+  triggerSlack(MODAL_OPEN_URL, {
     trigger_id: triggerId,
     view: createVacationDialog(user.getVacationBalance())
   })
@@ -57,7 +55,6 @@ function handleInteractions(payload) {
     vacation.notifyManager();
   } else if(payload.type == 'block_actions') {
     const action = payload.actions[0].action_id;
-
     switch(action) {
       case 'deny_vacation':
         const vacation = Vacation.init(payload.actions[0].value);
@@ -102,10 +99,9 @@ class User {
 
   generateChannelId() {
     return new Promise((resolve, reject) => {
-      trigger(CHANNEL_ID_URL, { users: this.userId })
+      triggerSlack(CHANNEL_ID_URL, { users: this.userId })
       .then(res => {
         if(res.channel) {
-          console.log("Updating channelid:")
           resolve(res.channel.id);
         } else {
           reject();
@@ -128,16 +124,18 @@ class Vacation {
 
   notifyManager() {
     const payload = approvalPayload(this.user, this)
-    trigger(Manager.hook, payload)
+    triggerSlack(Manager.hook, payload)
   }
 
   notifyEmployee() {
     this.user.getChannelId()
     .then(channelId => {
-      trigger(POST_MSG_URL, {
+      triggerSlack(POST_MSG_URL, {
         channel: channelId,
         text: `Your vacation from ${this.from} to ${this.to} has been denied!`
       })
+      .then(data => console.log("Employee Notified!"))
+      .catch(console.log)
     })
   }
 
@@ -275,17 +273,34 @@ function approvalPayload(user, vacation) {
   }
 }
 
-function trigger(url, body) {
+function triggerSlack(url, reqBody) {
   return new Promise((resolve, reject) => {
-    axios.post(url, body)
-    .then(function (response) {
-      // console.log("Trigger for url:", url)
-      // console.log("response.data:", response.data)
-      resolve(response.data)   
+    const data = JSON.stringify(reqBody)
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': data.length,
+        'Authorization': 'Bearer xoxb-165610094471-1044468471125-2tkSeVkmHUgh1QbOCPTEvPAt'
+      }
+    }
+  
+    const req = https.request(url, options, res => {
+      res.on('data', d => {
+        try {
+          resolve(JSON.parse(d.toString()))
+        } catch (e) {
+          resolve(d.toString())
+        }
+      })
     })
-    .catch(function (error) {
-      console.log(error);
-      reject(error);
-    });
+  
+    req.on('error', error => {
+      console.error(error)
+      reject(error)
+    })
+  
+    req.write(data)
+    req.end()
   })
 }
