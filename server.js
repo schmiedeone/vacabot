@@ -50,12 +50,12 @@ class User {
 }
 
 class Vacation {
-  constructor(user, {from, to, reason}) {
+  constructor(user, {from, to, reason, count}) {
     this.user = user;
     this.from = from;
     this.to = to;
     this.reason = reason;
-    this.count = 1;
+    this.count = Number(count) || 1;
     this.approved = true;
   }
 
@@ -199,7 +199,8 @@ function formSubmitData(payload) {
   return {
     from: values.from.from.selected_date,
     to: values.to.to.selected_date,
-    reason: values.reason.reason.value
+    reason: values.reason.reason.value,
+    count: values.leaves.leaves.value
   }
 }
 
@@ -279,7 +280,25 @@ function createVacationDialog(vacationBalance) {
           "emoji": true
         },
         "block_id": "reason"
-      }
+      },
+      {
+        "type": "input",
+        "element": {
+          "type": "plain_text_input",
+          "placeholder": {
+            "type": "plain_text",
+            "text": "Excluding holidays",
+            "emoji": true
+          },
+          "action_id": "leaves"
+        },
+        "label": {
+          "type": "plain_text",
+          "text": "Number of Leaves (Excluding Holidays)",
+          "emoji": true
+        },
+        "block_id": "leaves"
+      }  
     ]
   }
 }
@@ -298,7 +317,7 @@ function approvalPayload(user, vacation) {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": `*From:*\n${vacation.from}\n*To:*\n${vacation.to}\n*Comment:* ${vacation.reason}\n*Her/His Vacation Balance:* ${user.getVacationBalance()} Days`
+          "text": `*From:*\n${vacation.from}\n*To:*\n${vacation.to}\n*Comment:* ${vacation.reason}\n*Her/His vacation balance will be:* ${user.getVacationBalance()} Days`
         },
         "accessory": {
           "type": "image",
