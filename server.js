@@ -136,10 +136,18 @@ function handleCommand(body) {
   let user = new User(body.user_id, body.user_name)
   const responseUrl = body.response_url
   const triggerId = body.trigger_id
-  triggerSlack(MODAL_OPEN_URL, {
-    trigger_id: triggerId,
-    view: createVacationDialog(user.getVacationBalance())
-  })
+  const reqText = body.text
+
+  if(reqText.indexOf('manage') >= 0) {
+    console.log("Update manager")
+    setManager(user)
+    triggerSlack(responseUrl, { text: "You have been set as manager!" })
+  } else {
+    triggerSlack(MODAL_OPEN_URL, {
+      trigger_id: triggerId,
+      view: createVacationDialog(user.getVacationBalance())
+    })
+  }
 }
 
 function handleInteractions(payload) {
