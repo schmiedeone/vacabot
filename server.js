@@ -5,16 +5,12 @@ const MODAL_OPEN_URL = 'https://slack.com/api/views.open';
 const CHANNEL_ID_URL = 'https://slack.com/api/conversations.open';
 const POST_MSG_URL = 'https://slack.com/api/chat.postMessage';
 
-const Manager = {
-  name: 'Mukarram',
-  hook: 'https://hooks.slack.com/services/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'
-}
-
 class User {
   constructor(userId, userName, channelId = null) {
     this.userId = userId;
     this.userName = userName;
     this.channelId = channelId;
+    this.vacationBalance = 10
   }
 
   getChannelId() {
@@ -46,7 +42,11 @@ class User {
     })
   }
 
-  getVacationBalance() { return 10; }
+  setVacationBalance(days) {
+    this.vacationBalance = days;
+  }
+
+  getVacationBalance() { return this.vacationBalance; }
 }
 
 class Vacation {
@@ -55,6 +55,7 @@ class Vacation {
     this.from = from;
     this.to = to;
     this.reason = reason;
+    this.count = 1;
     this.approved = true;
   }
 
@@ -86,6 +87,11 @@ class Vacation {
     })
   }
 
+  reduceVacationBalance() {
+    this.user.setVacationBalance(this.user.getVacationBalance()-this.count);
+    addOrUpdateUser(this.user)
+  }
+
   denied() {
     this.approved = false;
   }
@@ -97,16 +103,32 @@ Vacation.init = function(value) {
   return new Vacation(user, data)
 }
 
-var currentManager = new User('UQF3YAKAT', 'mukarram.ali89', null)
+var currentManagerId = 'UQF3YAKAT';
+var defaultManager = new User('UQF3YAKAT', 'mukarram.ali89', null)
+var users = {}
+addOrUpdateUser(defaultManager)
+
+function addOrUpdateUser(user) {
+  users[user.userId] = user;
+  return user;
+}
+
+function getUser(userId) {
+  return users[userId];
+}
+
+function getOrCreateUser(userId, userName=null, channelId=null) {
+  return getUser(userId) || addOrUpdateUser(new User(userId, userName, channelId));
+}
 
 function getManager() {
   return new Promise((resolve, reject) => {
-    resolve(currentManager);
+    resolve(getUser(currentManagerId));
   });
 }
 
 function setManager(user) {
-  currentManager = user;
+  currentManagerId = user.userId;
 }
 
 http.createServer((request, response) => {
@@ -133,7 +155,7 @@ function handler(body) {
 
 function handleCommand(body) {
   console.log("Handling Command!")
-  let user = new User(body.user_id, body.user_name)
+  let user = getOrCreateUser(body.user_id, body.user_name)
   const responseUrl = body.response_url
   const triggerId = body.trigger_id
   const reqText = body.text
@@ -152,12 +174,13 @@ function handleCommand(body) {
 
 function handleInteractions(payload) {
   console.log("Handling Interactions! Type:", payload.type)
-  const user = new User(payload.user.id, payload.user.username);
+  const user = getOrCreateUser(payload.user.id, payload.user.username);
 
   if(payload.type == 'view_submission') {
     const formData = formSubmitData(payload);
     const vacation = new Vacation(user, formData);
-
+    
+    vacation.reduceVacationBalance();
     vacation.notifyManager();
   } else if(payload.type == 'block_actions') {
     const action = payload.actions[0].action_id;
@@ -268,7 +291,7 @@ function approvalPayload(user, vacation) {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": `Hi ${Manager.name}! ${user.userName} added his Vacation plans:\n*<https://calendar.google.com/calendar/b/1?cid=c2NobWllZGUub25lX2Z0Zmhtbm5hZG8xNGczMWRpZGhhZnFlYjQ4QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20|See In Calendar>*`
+          "text": `Hi ${getUser(currentManagerId).userName}! ${user.userName} added his Vacation plans:\n*<https://calendar.google.com/calendar/b/1?cid=c2NobWllZGUub25lX2Z0Zmhtbm5hZG8xNGczMWRpZGhhZnFlYjQ4QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20|See In Calendar>*`
         }
       },
       {
