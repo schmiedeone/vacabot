@@ -4,6 +4,9 @@ const axios = require('axios');
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.headers.post['Authorization'] = 'Bearer xoxb-165610094471-1044468471125-2tkSeVkmHUgh1QbOCPTEvPAt';
 const MODAL_OPEN_URL = 'https://slack.com/api/views.open';
+const CHANNEL_ID_URL = 'https://slack.com/api/conversations.open';
+const POST_MSG_URL = 'https://slack.com/api/chat.postMessage';
+
 const Manager = {
   name: 'Mukarram',
   hook: 'https://hooks.slack.com/services/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'
@@ -18,13 +21,10 @@ http.createServer((request, response) => {
     body.push(chunk);
   }).on('end', () => {
     body = parse(Buffer.concat(body).toString());
-    console.log("=========================\n")
-    console.log("RequestBody:", body)
     processRequest(body)
     response.writeHead(200, {'content-type':'application/json'});
     response.end();
   });
-  
 }).listen(80); 
 
 function processRequest(body) {
@@ -47,19 +47,22 @@ function handleCommand(body) {
 }
 
 function handleInteractions(payload) {
-  console.log("Handling Interactions!")
-  console.log("Payload:", payload)
+  console.log("Handling Interactions! Type:", payload.type)
   const user = new User(payload.user.id, payload.user.username);
+
   if(payload.type == 'view_submission') {
     const formData = formSubmitData(payload);
     const vacation = new Vacation(user, formData);
+
     vacation.notifyManager();
   } else if(payload.type == 'block_actions') {
     const action = payload.actions[0].action_id;
+
     switch(action) {
       case 'deny_vacation':
         const vacation = Vacation.init(payload.actions[0].value);
-        console.log("Vacation has been denied:", vacation);
+        vacation.denied();
+        vacation.notifyEmployee();
         break;
     }
   }
@@ -80,6 +83,37 @@ class User {
     this.userName = userName;
     this.channelId = channelId;
   }
+
+  getChannelId() {
+    return new Promise((resolve, reject) => {
+      if(this.channelId) {
+        resolve(this.channelId);
+      } else {
+        this.generateChannelId().then(channelId => {
+          this.channelId = channelId
+          resolve(this.channelId);
+        })
+        .catch(error => {
+          console.log("In getChannelId error:", error)
+        })
+      }
+    })
+  }
+
+  generateChannelId() {
+    return new Promise((resolve, reject) => {
+      trigger(CHANNEL_ID_URL, { users: this.userId })
+      .then(res => {
+        if(res.channel) {
+          console.log("Updating channelid:")
+          resolve(res.channel.id);
+        } else {
+          reject();
+        }
+      })
+    })
+  }
+
   getVacationBalance() { return 10; }
 }
 
@@ -89,17 +123,33 @@ class Vacation {
     this.from = from;
     this.to = to;
     this.reason = reason;
+    this.approved = true;
   }
 
   notifyManager() {
     const payload = approvalPayload(this.user, this)
     trigger(Manager.hook, payload)
   }
+
+  notifyEmployee() {
+    this.user.getChannelId()
+    .then(channelId => {
+      trigger(POST_MSG_URL, {
+        channel: channelId,
+        text: `Your vacation from ${this.from} to ${this.to} has been denied!`
+      })
+    })
+  }
+
+  denied() {
+    this.approved = false;
+  }
 }
 
 Vacation.init = function(value) {
   const data = JSON.parse(value)
-  return new Vacation(data.user, data)
+  const user = new User(data.user.userId, data.user.userName)
+  return new Vacation(user, data)
 }
 
 function createVacationDialog(vacationBalance) {
@@ -226,11 +276,16 @@ function approvalPayload(user, vacation) {
 }
 
 function trigger(url, body) {
-  axios.post(url, body)
-  .then(function (response) {
-    console.log("Response from trigger:", response.data);
+  return new Promise((resolve, reject) => {
+    axios.post(url, body)
+    .then(function (response) {
+      // console.log("Trigger for url:", url)
+      // console.log("response.data:", response.data)
+      resolve(response.data)   
+    })
+    .catch(function (error) {
+      console.log(error);
+      reject(error);
+    });
   })
-  .catch(function (error) {
-    console.log(error);
-  });
 }
