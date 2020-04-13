@@ -33,14 +33,14 @@ function triggerSlack(url, reqBody) {
   });
 }
 
-function approvalPayload(user, vacation) {
+function approvalPayload(user, manager, vacation) {
   return {
     blocks: [
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `Hi ${getUser(currentManagerId).userName}! ${
+          text: `Hi ${manager.userName}! ${
             user.userName
           } added his Vacation plans:\n*<https://calendar.google.com/calendar/b/1?cid=c2NobWllZGUub25lX2Z0Zmhtbm5hZG8xNGczMWRpZGhhZnFlYjQ4QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20|See In Calendar>*`,
         },
@@ -51,7 +51,7 @@ function approvalPayload(user, vacation) {
           type: "mrkdwn",
           text: `*From:*\n${vacation.from}\n*To:*\n${vacation.to}\n*Comment:* ${
             vacation.reason
-          }\n*Her/His vacation balance will be:* ${user.getVacationBalance()} Days`,
+          }\n*Her/His vacation balance will be:* ${user.vacationBalance} Days`,
         },
         accessory: {
           type: "image",

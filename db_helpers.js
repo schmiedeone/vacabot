@@ -1,33 +1,17 @@
 const User = require('./user');
 
 var currentManagerId = 'UQF3YAKAT';
-var defaultManager = new User('UQF3YAKAT', 'mukarram.ali89', null)
-var users = {}
-addOrUpdateUser(defaultManager)
-
-function addOrUpdateUser(user) {
-  users[user.userId] = user;
-  return user;
-}
-
-function getUser(userId) {
-  return users[userId];
-}
-
-function getOrCreateUser(userId, userName=null, channelId=null) {
-  return getUser(userId) || addOrUpdateUser(new User(userId, userName, channelId));
-}
 
 function getManager() {
-  return new Promise((resolve, reject) => {
-    resolve(getUser(currentManagerId));
-  });
+  return User.findOne({userId: currentManagerId})
 }
 
-function setManager(user) {
-  currentManagerId = user.userId;
+function updateManager(user) {
+  User.updateOne({userId: user.userId}, user)
+  .then(res => console.log("Manager updated with id:", user.userId))
+  .catch(err => console.log("Update Manager Failed!\n", err))
 }
 
 module.exports = {
-    addOrUpdateUser, getUser, getOrCreateUser, getManager, setManager
+  getManager, updateManager
 }

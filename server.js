@@ -2,8 +2,9 @@ const http = require('http');
 const { parse } = require('querystring');
 const MODAL_OPEN_URL = 'https://slack.com/api/views.open';
 const { triggerSlack, createVacationDialog, formSubmitData } = require('./helpers');
-const { getOrCreateUser, setManager } = require('./db_helpers');
+const { updateManager } = require('./db_helpers');
 const Vacation = require('./vacation');
+const User = require('./user')
 
 http.createServer((request, response) => {
   let body = [];
@@ -27,21 +28,22 @@ function handler(body) {
   }
 }
 
-function handleCommand(body) {
-  console.log("Handling Command!")
-  let user = getOrCreateUser(body.user_id, body.user_name)
+async function handleCommand(body) {
+  let user = await User.createIfNotExists(body.user_id, body.user_name)
+  console.log("Handling Command! User:", user.userName)
   const responseUrl = body.response_url
   const triggerId = body.trigger_id
   const reqText = body.text
 
   if(reqText.indexOf('manage') >= 0) {
-    console.log("Update manager")
-    setManager(user)
+    updateManager(user)
     triggerSlack(responseUrl, { text: "You have been set as manager!" })
+    .then(res => console.log("Confirmation give!"))
+    .catch(err => console.log("Sending confirmation failed!\n", err))
   } else if(reqText.trim().length == 0) {
     triggerSlack(MODAL_OPEN_URL, {
       trigger_id: triggerId,
-      view: createVacationDialog(user.getVacationBalance())
+      view: createVacationDialog(user.vacationBalance)
     })
   } else {
     // Check if username is passed and return leave balance
@@ -49,8 +51,8 @@ function handleCommand(body) {
 }
 
 function handleInteractions(payload) {
-  console.log("Handling Interactions! Type:", payload.type)
-  const user = getOrCreateUser(payload.user.id, payload.user.username);
+  const user = User.createIfNotExists(payload.user.id, payload.user.username);
+  console.log(`Handling Interactions! Type:${payload.type}, User:${user.userName}`)
 
   if(payload.type == 'view_submission') {
     const formData = formSubmitData(payload);
