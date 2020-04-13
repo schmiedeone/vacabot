@@ -71,7 +71,7 @@ function approvalPayload(user, manager, vacation) {
               text: "Deny",
             },
             style: "danger",
-            value: `${JSON.stringify(vacation)}`,
+            value: `${vacation._id}`,
             action_id: "deny_vacation",
           },
         ],

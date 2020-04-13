@@ -56,7 +56,7 @@ async function handleInteractions(payload) {
 
   if(payload.type == 'view_submission') {
     const formData = formSubmitData(payload);
-    const vacation = new Vacation(user, formData);
+    const vacation = await Vacation.create({user: user, ...formData});
     
     vacation.reduceVacationBalance();
     vacation.notifyManager();
@@ -64,7 +64,7 @@ async function handleInteractions(payload) {
     const action = payload.actions[0].action_id;
     switch(action) {
       case 'deny_vacation':
-        const vacation = await Vacation.init(payload.actions[0].value);
+        const vacation = await Vacation.findById(payload.actions[0].value).populate('user')
         vacation.denied();
         vacation.notifyEmployee();
         break;
