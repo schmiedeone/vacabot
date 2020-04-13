@@ -164,11 +164,13 @@ function handleCommand(body) {
     console.log("Update manager")
     setManager(user)
     triggerSlack(responseUrl, { text: "You have been set as manager!" })
-  } else {
+  } else if(reqText.trim().length == 0) {
     triggerSlack(MODAL_OPEN_URL, {
       trigger_id: triggerId,
       view: createVacationDialog(user.getVacationBalance())
     })
+  } else {
+    // Check if username is passed and return leave balance
   }
 }
 
