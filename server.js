@@ -50,8 +50,8 @@ async function handleCommand(body) {
   }
 }
 
-function handleInteractions(payload) {
-  const user = User.createIfNotExists(payload.user.id, payload.user.username);
+async function handleInteractions(payload) {
+  const user = await User.createIfNotExists(payload.user.id, payload.user.username);
   console.log(`Handling Interactions! Type:${payload.type}, User:${user.userName}`)
 
   if(payload.type == 'view_submission') {
@@ -64,7 +64,7 @@ function handleInteractions(payload) {
     const action = payload.actions[0].action_id;
     switch(action) {
       case 'deny_vacation':
-        const vacation = Vacation.init(payload.actions[0].value);
+        const vacation = await Vacation.init(payload.actions[0].value);
         vacation.denied();
         vacation.notifyEmployee();
         break;

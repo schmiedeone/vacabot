@@ -7,9 +7,7 @@ function getManager() {
 }
 
 function updateManager(user) {
-  User.updateOne({userId: user.userId}, user)
-  .then(res => console.log("Manager updated with id:", user.userId))
-  .catch(err => console.log("Update Manager Failed!\n", err))
+  currentManagerId = user.userId;
 }
 
 module.exports = {

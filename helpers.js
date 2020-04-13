@@ -77,6 +77,7 @@ function approvalPayload(user, manager, vacation) {
         ],
       },
     ],
+    text: `${user.userName} added her/his vacations!`
   };
 }
 

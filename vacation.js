@@ -44,7 +44,7 @@ class Vacation {
   
     reduceVacationBalance() {
       this.user.setVacationBalance(this.user.vacationBalance-this.count);
-      User.updateOne({userId: this.user.userId}, {...this.user});
+      this.user.save();
     }
   
     denied() {
@@ -52,10 +52,10 @@ class Vacation {
     }
   }
   
-  Vacation.init = async function(value) {
+Vacation.init = async function(value) {
     const data = JSON.parse(value)
     const user = await User.findOne({userId: data.user.userId})
-
     return new Vacation(user, data)
-  }
-  
+}
+
+module.exports = Vacation;
