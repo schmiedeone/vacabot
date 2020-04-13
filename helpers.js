@@ -1,4 +1,5 @@
 const https = require("https");
+const C = require("./consts");
 
 function triggerSlack(url, reqBody) {
   return new Promise((resolve, reject) => {
@@ -8,8 +9,7 @@ function triggerSlack(url, reqBody) {
       headers: {
         "Content-Type": "application/json",
         "Content-Length": data.length,
-        Authorization:
-          "Bearer xoxb-165610094471-1044468471125-2tkSeVkmHUgh1QbOCPTEvPAt",
+        Authorization: `Bearer ${C.AUTH_TOKEN}`,
       },
     };
 
@@ -33,6 +33,32 @@ function triggerSlack(url, reqBody) {
   });
 }
 
+function predictAction(query) {
+  if (query.indexOf("manage") >= 0) {
+    return C.SET_MANAGER;
+  } else if (query.trim().length == 0) {
+    return C.OPEN_DIALOG_CREATE_VACATION;
+  } else if (query.trim()[0] == "@") {
+    if (query.trim().substring(1).split(" ").length == 1) {
+      return C.CHECK_VACATION;
+    }
+  }
+  return null;
+}
+
+function predictInteraction(payload) {
+  if (payload.type == "view_submission") {
+    return C.SUBMIT_VACATION_DIALOG;
+  } else if (payload.type == "block_actions") {
+    const action = payload.actions[0].action_id;
+    switch (action) {
+      case "deny_vacation":
+        return C.DENY_VACATION_REQUEST;
+    }
+  }
+  return null;
+}
+
 function approvalPayload(user, manager, vacation) {
   return {
     blocks: [
@@ -40,18 +66,14 @@ function approvalPayload(user, manager, vacation) {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `Hi ${manager.userName}! ${
-            user.userName
-          } added his Vacation plans:\n*<https://calendar.google.com/calendar/b/1?cid=c2NobWllZGUub25lX2Z0Zmhtbm5hZG8xNGczMWRpZGhhZnFlYjQ4QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20|See In Calendar>*`,
+          text: `Hi ${manager.userName}! ${user.userName} added his Vacation plans!`,
         },
       },
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `*From:*\n${vacation.from}\n*To:*\n${vacation.to}\n*Comment:* ${
-            vacation.reason
-          }\n*Her/His vacation balance will be:* ${user.vacationBalance} Days`,
+          text: `*From:*\n${vacation.from}\n*To:*\n${vacation.to}\n*Comment:* ${vacation.reason}\n*Her/His vacation balance will be:* ${user.vacationBalance} Days`,
         },
         accessory: {
           type: "image",
@@ -77,7 +99,7 @@ function approvalPayload(user, manager, vacation) {
         ],
       },
     ],
-    text: `${user.userName} added her/his vacations!`
+    text: `${user.userName} added her/his vacations!`,
   };
 }
 
@@ -190,4 +212,16 @@ function formSubmitData(payload) {
   };
 }
 
-module.exports = { triggerSlack, approvalPayload, createVacationDialog, formSubmitData };
+function logAction(action) {
+  console.log(`========${action}========`)
+}
+
+module.exports = {
+  triggerSlack,
+  approvalPayload,
+  createVacationDialog,
+  formSubmitData,
+  predictAction,
+  predictInteraction,
+  logAction
+};

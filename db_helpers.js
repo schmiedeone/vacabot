@@ -1,9 +1,10 @@
-const User = require('./user');
+const User = require("./user");
+const C = require("./consts");
 
-var currentManagerId = 'UQF3YAKAT';
+var currentManagerId = C.DEFAULT_USER.userId;
 
 function getManager() {
-  return User.findOne({userId: currentManagerId})
+  return User.findOne({ userId: currentManagerId });
 }
 
 function updateManager(user) {
@@ -11,5 +12,6 @@ function updateManager(user) {
 }
 
 module.exports = {
-  getManager, updateManager
-}
+  getManager,
+  updateManager,
+};
