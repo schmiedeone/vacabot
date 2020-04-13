@@ -28,6 +28,23 @@ function handler(body) {
   }
 }
 
+const SET_MANAGER = 'set_manager',
+OPEN_DIALOG = 'open_dialog',
+CHECK_VACATION = 'check_vacation';
+
+function whichAction(query) {
+  if(query.indexOf('manage') >= 0) {
+    return SET_MANAGER;
+  } else if(query.trim().length == 0) {
+    return OPEN_DIALOG;
+  } else if(query.trim()[0] == '@') {
+    if(query.trim().substring(1).split(' ').length == 1) {
+      return CHECK_VACATION;
+    }
+  }
+  return null;
+}
+
 async function handleCommand(body) {
   let user = await User.createIfNotExists(body.user_id, body.user_name)
   console.log("Handling Command! User:", user.userName)
@@ -35,18 +52,30 @@ async function handleCommand(body) {
   const triggerId = body.trigger_id
   const reqText = body.text
 
-  if(reqText.indexOf('manage') >= 0) {
-    updateManager(user)
-    triggerSlack(responseUrl, { text: "You have been set as manager!" })
-    .then(res => console.log("Confirmation give!"))
-    .catch(err => console.log("Sending confirmation failed!\n", err))
-  } else if(reqText.trim().length == 0) {
-    triggerSlack(MODAL_OPEN_URL, {
-      trigger_id: triggerId,
-      view: createVacationDialog(user.vacationBalance)
-    })
-  } else {
-    // Check if username is passed and return leave balance
+  switch(whichAction(reqText)) {
+    case SET_MANAGER:
+      updateManager(user)
+      triggerSlack(responseUrl, { text: "You have been set as manager!" })
+      .then(res => console.log("Confirmation give!"))
+      .catch(err => console.log("Sending confirmation failed!\n", err))
+      break;
+    case OPEN_DIALOG:
+      triggerSlack(MODAL_OPEN_URL, {
+        trigger_id: triggerId,
+        view: createVacationDialog(user.vacationBalance)
+      })
+      break;
+    case CHECK_VACATION:
+      const userName = reqText.substring(1).split(' ')[0];
+      const user = await User.findOne({userName: userName});
+      let days = 10;
+      if(user) {
+        days = user.vacationBalance;
+      }
+      triggerSlack(responseUrl, { text: `Leave Balance for @${userName} is _${days}_` })
+      break;
+    default:
+      console.log("Command couldn't be processed:", reqText)
   }
 }
 
