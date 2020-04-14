@@ -1,4 +1,4 @@
-const User = require("./user");
+const User = require("./models/user");
 const C = require("./consts");
 
 var currentManagerId = C.DEFAULT_USER.userId;

@@ -1,8 +1,8 @@
 const { Schema } = require("mongoose");
 
-const db = require("./db");
-const { triggerSlack } = require("./helpers");
-const C = require("./consts");
+const db = require("../db");
+const { triggerSlack } = require("../helpers");
+const C = require("../consts");
 
 const userSchema = new Schema({
   userId: { type: "String", required: true, unique: true },

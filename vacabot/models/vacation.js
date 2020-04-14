@@ -1,9 +1,9 @@
 const { Schema } = require("mongoose");
 
-const db = require("./db");
-const { triggerSlack, approvalPayload } = require("./helpers");
-const { getManager } = require("./db_helpers");
-const C = require("./consts");
+const db = require("../db");
+const { triggerSlack, approvalPayload } = require("../helpers");
+const { getManager } = require("../db_helpers");
+const C = require("../consts");
 
 const vacationSchema = new Schema({
   user: {
