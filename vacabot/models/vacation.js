@@ -18,12 +18,11 @@ const vacationSchema = new Schema({
 });
 
 vacationSchema.methods.reduceVacationBalance = function () {
-  this.user.setVacationBalance(this.user.vacationBalance - this.count);
-  this.user.save();
+  this.user.updateVacationBalance(this.user.vacationBalance - this.count);
 };
 
 vacationSchema.methods.notifyManager = function () {
-  getManager().then((manager) => {
+  this.user.getManager().then((manager) => {
     manager.getChannelId().then((channelId) => {
       const payload = templateApprovalPayload(this.user, manager, this);
       triggerSlack(C.POST_MSG_URL, {
@@ -49,8 +48,7 @@ vacationSchema.methods.notifyEmployee = function () {
 
 vacationSchema.methods.denied = function () {
   if (this.approved) {
-    this.user.setVacationBalance(this.user.vacationBalance + this.count);
-    this.user.save();
+    this.user.updateVacationBalance(this.user.vacationBalance + this.count);
     this.approved = false;
     this.save();
   }

@@ -3,7 +3,6 @@ const {
   templateVacationDialog,
   formSubmitData,
 } = require("./helpers");
-const { updateManager } = require("./db_helpers");
 const C = require("./consts");
 const Vacation = require("./models/vacation");
 const User = require("./models/user");
@@ -25,7 +24,7 @@ async function actionDenyVacationRequest(payload) {
 }
 
 async function actionUpdateManager(responseUrl, user) {
-  updateManager(user);
+  user.setAsManager();
   triggerSlack(responseUrl, { text: "You have been set as manager!" })
     .then((res) => console.log("Confirmation given for updating manager!"))
     .catch((err) => console.log("Sending confirmation failed!\n", err));

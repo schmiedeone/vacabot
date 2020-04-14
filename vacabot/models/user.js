@@ -46,11 +46,26 @@ userSchema.methods.generateChannelId = function () {
   });
 };
 
-userSchema.methods.setVacationBalance = function (days) {
+userSchema.methods.updateVacationBalance = function (days) {
   this.vacationBalance = days;
+  this.save();
 };
 
 const User = db.model("User", userSchema);
+
+userSchema.methods.getManager = function () {
+  return User.findOne({teamId: this.teamId, ifManager: true})
+}
+
+userSchema.methods.setAsManager = async function () {
+  let currentManager = User.findOne({teamId: this.teamId, ifManager: true})
+  if(currentManager) {
+    currentManager.ifManager = false;
+    currentManager.save();
+  }
+  this.ifManager = true;
+  this.save();
+}
 
 User.createIfNotExists = async function (
   userId,
