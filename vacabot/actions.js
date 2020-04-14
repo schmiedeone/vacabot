@@ -1,6 +1,6 @@
 const {
   triggerSlack,
-  createVacationDialog,
+  templateVacationDialog,
   formSubmitData,
 } = require("./helpers");
 const { updateManager } = require("./db_helpers");
@@ -34,7 +34,7 @@ async function actionUpdateManager(responseUrl, user) {
 async function actionOpenCreateVacation(triggerId, user) {
   triggerSlack(C.MODAL_OPEN_URL, {
     trigger_id: triggerId,
-    view: createVacationDialog(user.vacationBalance),
+    view: templateVacationDialog(user.vacationBalance),
   });
 }
 

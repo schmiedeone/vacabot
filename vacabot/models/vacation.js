@@ -1,7 +1,7 @@
 const { Schema } = require("mongoose");
 
 const db = require("../db");
-const { triggerSlack, approvalPayload } = require("../helpers");
+const { triggerSlack, templateApprovalPayload } = require("../helpers");
 const { getManager } = require("../db_helpers");
 const C = require("../consts");
 
@@ -25,7 +25,7 @@ vacationSchema.methods.reduceVacationBalance = function () {
 vacationSchema.methods.notifyManager = function () {
   getManager().then((manager) => {
     manager.getChannelId().then((channelId) => {
-      const payload = approvalPayload(this.user, manager, this);
+      const payload = templateApprovalPayload(this.user, manager, this);
       triggerSlack(C.POST_MSG_URL, {
         ...payload,
         channel: channelId,

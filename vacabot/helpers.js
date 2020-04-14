@@ -59,7 +59,7 @@ function predictInteraction(payload) {
   return null;
 }
 
-function approvalPayload(user, manager, vacation) {
+function templateApprovalPayload(user, manager, vacation) {
   return {
     blocks: [
       {
@@ -103,7 +103,7 @@ function approvalPayload(user, manager, vacation) {
   };
 }
 
-function createVacationDialog(vacationBalance) {
+function templateVacationDialog(vacationBalance) {
   return {
     type: "modal",
     callback_id: "create-vacation-modal",
@@ -218,8 +218,8 @@ function logAction(action) {
 
 module.exports = {
   triggerSlack,
-  approvalPayload,
-  createVacationDialog,
+  templateApprovalPayload,
+  templateVacationDialog,
   formSubmitData,
   predictAction,
   predictInteraction,
