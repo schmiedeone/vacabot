@@ -19,7 +19,7 @@ function serverHandler(req, res) {
   let body = [];
   req
     .on("error", console.error)
-    .on("data", body.push)
+    .on("data", data => body.push(data))
     .on("end", () => {
       body = parse(Buffer.concat(body).toString());
       mainHandler(body);
@@ -41,7 +41,7 @@ function mainHandler(body) {
 }
 
 async function handleCommand(body) {
-  let user = await User.createIfNotExists(body.user_id, body.user_name);
+  let user = await User.createIfNotExists(body.user_id, body.user_name, body.team_id);
   console.log("\vNew request from:", user.userName);
 
   const responseUrl = body.response_url;
@@ -67,7 +67,7 @@ async function handleCommand(body) {
 }
 
 async function handleInteractions(payload) {
-  const user = await User.createIfNotExists(payload.user.id, payload.user.username);
+  const user = await User.createIfNotExists(payload.user.id, payload.user.username, payload.user.team_id);
   console.log("\vNew request from:", user.userName);
 
   const interaction = predictInteraction(payload);

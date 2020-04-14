@@ -9,6 +9,8 @@ const userSchema = new Schema({
   userName: { type: "String", required: true, unique: true },
   channelId: { type: "String", unique: true },
   vacationBalance: { type: "Number", default: 10 },
+  teamId: { type: "String", required: true },
+  ifManager: { type: "Boolean", default: false }
 });
 
 userSchema.methods.getChannelId = function () {
@@ -53,6 +55,7 @@ const User = db.model("User", userSchema);
 User.createIfNotExists = async function (
   userId,
   usernName,
+  teamId,
   channelId = null,
   vacationBalance = null
 ) {
@@ -61,6 +64,7 @@ User.createIfNotExists = async function (
     user = await User.create({
       userId: userId,
       userName: usernName,
+      teamId: teamId,
       channelId: channelId,
       vacationBalance: vacationBalance || 10,
     });
@@ -68,6 +72,6 @@ User.createIfNotExists = async function (
   return user;
 };
 
-User.createIfNotExists(C.DEFAULT_USER.userId, C.DEFAULT_USER.userName);
+User.createIfNotExists(C.DEFAULT_USER.userId, C.DEFAULT_USER.userName, C.DEFAULT_USER.teamId);
 
 module.exports = User;
