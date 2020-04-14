@@ -83,6 +83,4 @@ User.createIfNotExists = async function (
   return user;
 };
 
-User.createIfNotExists(C.DEFAULT_USER.userId, C.DEFAULT_USER.userName, C.DEFAULT_USER.teamId);
-
 module.exports = User;
