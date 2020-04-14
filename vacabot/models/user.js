@@ -51,21 +51,17 @@ userSchema.methods.updateVacationBalance = function (days) {
   this.save();
 };
 
-const User = db.model("User", userSchema);
-
-userSchema.methods.getManager = function () {
-  return User.findOne({teamId: this.teamId, ifManager: true})
+userSchema.methods.theirManager = function () {
+  return this.model("User").findOne({teamId: this.teamId, ifManager: true})
 }
 
 userSchema.methods.setAsManager = async function () {
-  let currentManager = User.findOne({teamId: this.teamId, ifManager: true})
-  if(currentManager) {
-    currentManager.ifManager = false;
-    currentManager.save();
-  }
+  this.model("User").updateOne({teamId: this.teamId, ifManager: true}, {ifManager: false})
   this.ifManager = true;
   this.save();
 }
+
+const User = db.model("User", userSchema);
 
 User.createIfNotExists = async function (
   userId,
