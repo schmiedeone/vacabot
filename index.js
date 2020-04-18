@@ -30,7 +30,7 @@ function serverHandler(req, res) {
 
 http
   .createServer(serverHandler)
-  .listen(80);
+  .listen(process.env.PORT || 80);
 
 function mainHandler(body) {
   if (body.command) {
