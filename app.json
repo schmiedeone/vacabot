@@ -1,8 +1,0 @@
-{
-  "name": "Vacabot",
-  "description": "A bot for slack. To manage leaves/vaction plans in an organisation.",
-  "repository": "https://github.com/schmiedeone/vacabot",
-  "logo": "https://raw.githubusercontent.com/schmiedeone/vacabot/master/vacabot-logo.png?token=ADDLLXMMO5WBXJTLMUON7S26USQRQ",
-  "keywords": ["slack", "bot", "vacation"],
-  "image": "heroku/nodejs"
-}
