@@ -21,8 +21,12 @@ function serverHandler(req, res) {
     .on("error", console.error)
     .on("data", data => body.push(data))
     .on("end", () => {
-      body = parse(Buffer.concat(body).toString());
-      mainHandler(body);
+      try {
+        body = parse(Buffer.concat(body).toString());
+        mainHandler(body);
+      } catch(err) {
+        console.error(err);
+      }
       res.writeHead(200, { "content-type": "application/json" });
       res.end();
     });
