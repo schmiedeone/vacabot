@@ -7,7 +7,7 @@ const C = require("../consts");
 const userSchema = new Schema({
   userId: { type: "String", required: true, unique: true },
   userName: { type: "String", required: true, unique: true },
-  channelId: { type: "String", unique: true },
+  channelId: { type: "String" },
   vacationBalance: { type: "Number", default: 10 },
   teamId: { type: "String", required: true },
   ifManager: { type: "Boolean", default: false }
