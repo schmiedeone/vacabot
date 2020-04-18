@@ -1,5 +1,7 @@
 # VacaBot
 
+![alt text](vacabot-logo.png "Isn't this cool?")
+
 Vacabot helps organisation to easily manager leaves/vacation plans without depending upon any extra service potal. Everything through a slackbot.
 
 ## Installation on a Slack Bot
