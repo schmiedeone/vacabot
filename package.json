@@ -9,7 +9,9 @@
   "dependencies": {
     "mongoose": "^5.9.7"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "ngrok": "^3.3.0"
+  },
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
