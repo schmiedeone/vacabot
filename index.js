@@ -45,7 +45,11 @@ function mainHandler(body) {
 }
 
 async function handleCommand(body) {
-  let user = await User.createIfNotExists(body.user_id, body.user_name, body.team_id);
+  let user = await User.createIfNotExists({
+    userId: body.user_id,
+    userName: body.user_name,
+    teamId: body.team_id
+  });
   console.log("\vNew request from:", user.userName);
 
   const responseUrl = body.response_url;
@@ -71,12 +75,16 @@ async function handleCommand(body) {
 }
 
 async function handleInteractions(payload) {
-  const user = await User.createIfNotExists(payload.user.id, payload.user.username, payload.user.team_id);
+  const user = await User.createIfNotExists({
+    userId: payload.user.id,
+    userName: payload.user.username,
+    teamId: payload.user.team_id
+  });
   console.log("\vNew request from:", user.userName);
 
   const interaction = predictInteraction(payload);
   logAction(interaction);
-  
+
   switch (interaction) {
     case C.SUBMIT_VACATION_DIALOG:
       actionSubmitVacationRequest(user, payload)

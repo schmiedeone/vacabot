@@ -6,7 +6,7 @@ const C = require("../consts");
 
 const userSchema = new Schema({
   userId: { type: "String", required: true, unique: true },
-  userName: { type: "String", required: true, unique: true },
+  userName: { type: "String", required: true },
   channelId: { type: "String" },
   vacationBalance: { type: "Number", default: 10 },
   teamId: { type: "String", required: true },
@@ -63,13 +63,13 @@ userSchema.methods.setAsManager = async function () {
 
 const User = db.model("User", userSchema);
 
-User.createIfNotExists = async function (
+User.createIfNotExists = async function ({
   userId,
   usernName,
   teamId,
   channelId = null,
   vacationBalance = null
-) {
+}) {
   let user = await User.findOne({ userId: userId });
   if (!user) {
     user = await User.create({
