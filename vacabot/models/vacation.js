@@ -22,12 +22,13 @@ vacationSchema.methods.reduceVacationBalance = function () {
 
 vacationSchema.methods.notifyManager = function () {
   this.user.theirManager().then((manager) => {
-    if(!manager) {
+    if (!manager) {
       this.user.getChannelId().then((channelId) => {
         triggerSlack(C.POST_MSG_URL, {
           channel: channelId,
-          text: "Manager for your team not set. Use _/vacabot manager_ to become one."
-        })
+          text:
+            "Manager for your team not set. Use _/vacabot manager_ to become one.",
+        });
       });
       // return above promise call instead
       return;

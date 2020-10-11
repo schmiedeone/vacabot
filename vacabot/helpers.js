@@ -214,7 +214,7 @@ function formSubmitData(payload) {
 }
 
 function logAction(action) {
-  console.log(`========${action}========`)
+  console.log(`========${action}========`);
 }
 
 module.exports = {
@@ -224,5 +224,5 @@ module.exports = {
   formSubmitData,
   predictAction,
   predictInteraction,
-  logAction
+  logAction,
 };
