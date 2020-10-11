@@ -17,7 +17,15 @@ const vacationSchema = new Schema({
 });
 
 vacationSchema.methods.reduceVacationBalance = function () {
-  this.user.updateVacationBalance(this.user.vacationBalance - this.count);
+  if ((this.user.vacationBalance - this.count) > 0) {
+    this.user.updateVacationBalance(this.user.vacationBalance - this.count);
+    this.notifyManager();
+  }
+  else {
+    this.approved = false;
+    this.save();
+    this.notifyEmployee();
+  }
 };
 
 vacationSchema.methods.notifyManager = function () {

@@ -12,7 +12,6 @@ async function actionSubmitVacationRequest(user, payload) {
   vacation = await Vacation.create({ user: user, ...formData });
 
   vacation.reduceVacationBalance();
-  vacation.notifyManager();
 }
 
 async function actionDenyVacationRequest(payload) {
