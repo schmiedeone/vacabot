@@ -44,4 +44,7 @@ You'll get public links. Copy https one for later use.
 3. Check leave balance of an employee
     `/vacabot @username`
 
+## Slack Community
+Here you can try out the vacabot bot already installed and being used.
+[Joining link](https://join.slack.com/t/hacktoberfestindia/shared_invite/zt-ifcel7xs-Bnv2Vk73MmtU7xKU~nvSaQ) (valid until 10th November)
 
