@@ -51,6 +51,7 @@ function predictInteraction(payload) {
     return C.SUBMIT_VACATION_DIALOG;
   } else if (payload.type == "block_actions") {
     const action = payload.actions[0].action_id;
+    // use simple if condition
     switch (action) {
       case "deny_vacation":
         return C.DENY_VACATION_REQUEST;

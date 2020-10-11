@@ -22,7 +22,7 @@ userSchema.methods.getChannelId = function () {
       self
         .generateChannelId()
         .then((channelId) => {
-          resolve(self.channelId);
+          resolve(channelId);
         })
         .catch((error) => {
           console.log("In getChannelId error:", error);
