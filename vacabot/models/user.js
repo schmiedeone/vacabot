@@ -8,7 +8,7 @@ const userSchema = new Schema({
   userId: { type: "String", required: true, unique: true },
   userName: { type: "String", required: true, unique: false },
   channelId: { type: "String" },
-  vacationBalance: { type: "Number", default: 10 },
+  vacationBalance: { type: "Number", default: C.DEFAULT_VACATION_BALANCE },
   teamId: { type: "String", required: true },
   ifManager: { type: "Boolean", default: false }
 });
@@ -77,7 +77,7 @@ User.createIfNotExists = async function ({
       userName: userName,
       teamId: teamId,
       channelId: channelId,
-      vacationBalance: vacationBalance || 10,
+      vacationBalance: vacationBalance || C.DEFAULT_VACATION_BALANCE,
     });
   }
   return user;
