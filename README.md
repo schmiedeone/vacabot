@@ -32,3 +32,14 @@ You'll get public links. Copy https one for later use.
 Here you can try out the vacabot bot already installed and being used.
 [Joining link](https://join.slack.com/t/hacktoberfestindia/shared_invite/zt-ifcel7xs-Bnv2Vk73MmtU7xKU~nvSaQ) (valid until 10th November)
 
+## How to Contribute
+These are guidelines you can follow:
+1. Branch name can follow this pattern:
+    `feature/<ISSUE_NUMER>-feature-title`
+    `bug/<ISSUE_NUMER>-bug-title`
+    `documentation/<ISSUE_NUMER>-title`
+2. Commit msgs pattern:
+    `[FEATURE]: adds support for new commands`
+    `[FIX]: allows edge cases for users`
+    `[DOCS]: adds instructions to run locally`
+3. Optional. Join the slack community given above to try out the bot.
