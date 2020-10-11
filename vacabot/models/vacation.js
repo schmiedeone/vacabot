@@ -29,6 +29,7 @@ vacationSchema.methods.notifyManager = function () {
           text: "Manager for your team not set. Use _/vacabot manager_ to become one."
         })
       });
+      // return above promise call instead
       return;
     }
     manager.getChannelId().then((channelId) => {

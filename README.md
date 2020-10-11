@@ -4,6 +4,15 @@
 
 Vacabot helps organisation to easily manager leaves/vacation plans without depending upon any extra service potal. Everything through a slackbot.
 
+## Running locally
+Install dependencies and run through yarn ([Install yarn from here](https://classic.yarnpkg.com/en/docs/install/#mac-stable))
+
+`yarn && yarn start`
+
+In another tab
+
+`yarn ngrok http 80`
+
 ## Installation on a Slack Bot
 
 Add service end point here

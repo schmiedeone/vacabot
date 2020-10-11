@@ -9,9 +9,13 @@
   "dependencies": {
     "mongoose": "^5.9.7"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "env-cmd": "^10.1.0",
+    "ngrok": "^3.3.0"
+  },
   "scripts": {
     "start": "node index.js",
+    "dev": "env-cmd -f .env node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

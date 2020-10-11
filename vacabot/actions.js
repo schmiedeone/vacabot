@@ -38,6 +38,7 @@ async function actionOpenCreateVacation(triggerId, user) {
 }
 
 async function actionCheckVacationBalance(responseUrl, query) {
+  // Query should send userId and that should be used as being unique
   const userName = query.substring(1).split(" ")[0];
   let employee = await User.findOne({ userName: userName });
   let days = C.DEFAULT_VACATION_BALANCE;

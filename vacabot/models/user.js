@@ -6,7 +6,7 @@ const C = require("../consts");
 
 const userSchema = new Schema({
   userId: { type: "String", required: true, unique: true },
-  userName: { type: "String", required: true, unique: true },
+  userName: { type: "String", required: true, unique: false },
   channelId: { type: "String" },
   vacationBalance: { type: "Number", default: 10 },
   teamId: { type: "String", required: true },
@@ -22,7 +22,7 @@ userSchema.methods.getChannelId = function () {
       self
         .generateChannelId()
         .then((channelId) => {
-          resolve(self.channelId);
+          resolve(channelId);
         })
         .catch((error) => {
           console.log("In getChannelId error:", error);
@@ -63,18 +63,18 @@ userSchema.methods.setAsManager = async function () {
 
 const User = db.model("User", userSchema);
 
-User.createIfNotExists = async function (
+User.createIfNotExists = async function ({
   userId,
-  usernName,
+  userName,
   teamId,
   channelId = null,
   vacationBalance = null
-) {
+}) {
   let user = await User.findOne({ userId: userId });
   if (!user) {
     user = await User.create({
       userId: userId,
-      userName: usernName,
+      userName: userName,
       teamId: teamId,
       channelId: channelId,
       vacationBalance: vacationBalance || 10,
