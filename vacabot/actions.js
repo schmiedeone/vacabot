@@ -9,9 +9,10 @@ const User = require("./models/user");
 
 async function actionSubmitVacationRequest(user, payload) {
   const formData = formSubmitData(payload);
+  let isValid;
   vacation = await Vacation.create({ user: user, ...formData });
-
-  vacation.reduceVacationBalance();
+  isValid = vacation.reduceVacationBalance();
+  isValid === true?  vacation.notifyManager() : vacation.notifyEmployee();
 }
 
 async function actionDenyVacationRequest(payload) {
