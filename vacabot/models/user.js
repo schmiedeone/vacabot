@@ -15,7 +15,7 @@ const userSchema = new Schema({
 
 userSchema.methods.getChannelId = function () {
   let self = this;
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     if (self.channelId) {
       resolve(self.channelId);
     } else {
