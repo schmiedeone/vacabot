@@ -11,11 +11,12 @@
   },
   "devDependencies": {
     "env-cmd": "^10.1.0",
-    "ngrok": "^3.3.0"
+    "ngrok": "^3.3.0",
+    "nodemon": "^2.0.4"
   },
   "scripts": {
     "start": "node index.js",
-    "dev": "env-cmd -f .env node index.js",
+    "dev": "env-cmd -f .env nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -28,6 +29,11 @@
     "vacation",
     "schmiede"
   ],
+  "nodemonConfig": {
+    "verbose": true,
+    "ignore": ["test/*", "docs/*"],
+    "delay": "1000"
+  },
   "author": "Schmiede One",
   "license": "ISC",
   "bugs": {
