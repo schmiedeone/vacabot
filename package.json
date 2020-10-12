@@ -11,6 +11,9 @@
   },
   "devDependencies": {
     "env-cmd": "^10.1.0",
+    "eslint": "^7.11.0",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.0",
     "ngrok": "^3.3.0"
   },
   "scripts": {
@@ -33,5 +36,10 @@
   "bugs": {
     "url": "https://github.com/schmiedeone/vacabot/issues"
   },
-  "homepage": "https://github.com/schmiedeone/vacabot#readme"
+  "homepage": "https://github.com/schmiedeone/vacabot#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
 }
