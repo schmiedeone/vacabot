@@ -1,20 +1,20 @@
-const https = require("https");
-const C = require("./consts");
+const https = require('https');
+const C = require('./consts');
 
 function triggerSlack(url, reqBody) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify(reqBody);
     const options = {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "Content-Length": data.length,
+        'Content-Type': 'application/json',
+        'Content-Length': data.length,
         Authorization: `Bearer ${C.AUTH_TOKEN}`,
       },
     };
 
     const req = https.request(url, options, (res) => {
-      res.on("data", (d) => {
+      res.on('data', (d) => {
         try {
           resolve(JSON.parse(d.toString()));
         } catch (e) {
@@ -23,7 +23,7 @@ function triggerSlack(url, reqBody) {
       });
     });
 
-    req.on("error", (error) => {
+    req.on('error', (error) => {
       console.error(error);
       reject(error);
     });
@@ -34,12 +34,12 @@ function triggerSlack(url, reqBody) {
 }
 
 function predictAction(query) {
-  if (query.indexOf("manage") >= 0) {
+  if (query.indexOf('manage') >= 0) {
     return C.SET_MANAGER;
   } else if (query.trim().length == 0) {
     return C.OPEN_DIALOG_CREATE_VACATION;
-  } else if (query.trim()[0] == "@") {
-    if (query.trim().substring(1).split(" ").length == 1) {
+  } else if (query.trim()[0] == '@') {
+    if (query.trim().substring(1).split(' ').length == 1) {
       return C.CHECK_VACATION;
     }
   }
@@ -47,13 +47,13 @@ function predictAction(query) {
 }
 
 function predictInteraction(payload) {
-  if (payload.type == "view_submission") {
+  if (payload.type == 'view_submission') {
     return C.SUBMIT_VACATION_DIALOG;
-  } else if (payload.type == "block_actions") {
+  } else if (payload.type == 'block_actions') {
     const action = payload.actions[0].action_id;
     // use simple if condition
     switch (action) {
-      case "deny_vacation":
+      case 'deny_vacation':
         return C.DENY_VACATION_REQUEST;
     }
   }
@@ -64,38 +64,38 @@ function templateApprovalPayload(user, manager, vacation) {
   return {
     blocks: [
       {
-        type: "section",
+        type: 'section',
         text: {
-          type: "mrkdwn",
+          type: 'mrkdwn',
           text: `Hi ${manager.userName}! ${user.userName} added his Vacation plans!`,
         },
       },
       {
-        type: "section",
+        type: 'section',
         text: {
-          type: "mrkdwn",
+          type: 'mrkdwn',
           text: `*From:*\n${vacation.from}\n*To:*\n${vacation.to}\n*Comment:* ${vacation.reason}\n*Her/His vacation balance will be:* ${user.vacationBalance} Days`,
         },
         accessory: {
-          type: "image",
+          type: 'image',
           image_url:
-            "https://api.slack.com/img/blocks/bkb_template_images/approvalsNewDevice.png",
-          alt_text: "computer thumbnail",
+            'https://api.slack.com/img/blocks/bkb_template_images/approvalsNewDevice.png',
+          alt_text: 'computer thumbnail',
         },
       },
       {
-        type: "actions",
+        type: 'actions',
         elements: [
           {
-            type: "button",
+            type: 'button',
             text: {
-              type: "plain_text",
+              type: 'plain_text',
               emoji: true,
-              text: "Deny",
+              text: 'Deny',
             },
-            style: "danger",
+            style: 'danger',
             value: `${vacation._id}`,
-            action_id: "deny_vacation",
+            action_id: 'deny_vacation',
           },
         ],
       },
@@ -106,98 +106,98 @@ function templateApprovalPayload(user, manager, vacation) {
 
 function templateVacationDialog(vacationBalance) {
   return {
-    type: "modal",
-    callback_id: "create-vacation-modal",
+    type: 'modal',
+    callback_id: 'create-vacation-modal',
     title: {
-      type: "plain_text",
-      text: "VacaBot",
+      type: 'plain_text',
+      text: 'VacaBot',
       emoji: true,
     },
     submit: {
-      type: "plain_text",
-      text: "Submit",
+      type: 'plain_text',
+      text: 'Submit',
       emoji: true,
     },
     close: {
-      type: "plain_text",
-      text: "Cancel",
+      type: 'plain_text',
+      text: 'Cancel',
       emoji: true,
     },
     blocks: [
       {
-        type: "section",
+        type: 'section',
         text: {
-          type: "mrkdwn",
+          type: 'mrkdwn',
           text: `*Add Vacation!*\nBalance: _${vacationBalance}_ _Days_`,
         },
-        block_id: "section1",
+        block_id: 'section1',
       },
       {
-        type: "input",
+        type: 'input',
         element: {
-          type: "datepicker",
+          type: 'datepicker',
           placeholder: {
-            type: "plain_text",
-            text: "Select a date",
+            type: 'plain_text',
+            text: 'Select a date',
             emoji: true,
           },
-          action_id: "from",
+          action_id: 'from',
         },
         label: {
-          type: "plain_text",
-          text: "From",
+          type: 'plain_text',
+          text: 'From',
           emoji: true,
         },
-        block_id: "from",
+        block_id: 'from',
       },
       {
-        type: "input",
+        type: 'input',
         element: {
-          type: "datepicker",
+          type: 'datepicker',
           placeholder: {
-            type: "plain_text",
-            text: "Select a date",
+            type: 'plain_text',
+            text: 'Select a date',
             emoji: true,
           },
-          action_id: "to",
+          action_id: 'to',
         },
         label: {
-          type: "plain_text",
-          text: "To",
+          type: 'plain_text',
+          text: 'To',
           emoji: true,
         },
-        block_id: "to",
+        block_id: 'to',
       },
       {
-        type: "input",
+        type: 'input',
         element: {
-          type: "plain_text_input",
-          action_id: "reason",
+          type: 'plain_text_input',
+          action_id: 'reason',
         },
         label: {
-          type: "plain_text",
-          text: "Reason/Comment",
+          type: 'plain_text',
+          text: 'Reason/Comment',
           emoji: true,
         },
-        block_id: "reason",
+        block_id: 'reason',
       },
       {
-        type: "input",
+        type: 'input',
         element: {
-          type: "plain_text_input",
+          type: 'plain_text_input',
           placeholder: {
-            type: "plain_text",
-            text: "Excluding holidays",
+            type: 'plain_text',
+            text: 'Excluding holidays',
             emoji: true,
           },
-          action_id: "leaves",
+          action_id: 'leaves',
         },
         label: {
-          type: "plain_text",
-          text: "Number of Leaves (Excluding Holidays)",
+          type: 'plain_text',
+          text: 'Number of Leaves (Excluding Holidays)',
           emoji: true,
         },
-        block_id: "leaves",
+        block_id: 'leaves',
       },
     ],
   };
@@ -214,7 +214,7 @@ function formSubmitData(payload) {
 }
 
 function logAction(action) {
-  console.log(`========${action}========`)
+  console.log(`========${action}========`);
 }
 
 module.exports = {
@@ -224,5 +224,5 @@ module.exports = {
   formSubmitData,
   predictAction,
   predictInteraction,
-  logAction
+  logAction,
 };

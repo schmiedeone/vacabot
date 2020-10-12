@@ -9,5 +9,5 @@ module.exports = Object.freeze({
   MODAL_OPEN_URL: 'https://slack.com/api/views.open',
   POST_MSG_URL: 'https://slack.com/api/chat.postMessage',
   CHANNEL_ID_URL: 'https://slack.com/api/conversations.open',
-  DB_CONNECTION_URL: process.env.DB_CONNECTION_URL
+  DB_CONNECTION_URL: process.env.DB_CONNECTION_URL,
 });
