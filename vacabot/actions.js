@@ -16,9 +16,9 @@ async function actionSubmitVacationRequest(user, payload) {
 }
 
 async function actionDenyVacationRequest(payload) {
-  const vacation = await Vacation.findById(
-    payload.actions[0].value
-  ).populate("user");
+  const vacation = await Vacation.findById(payload.actions[0].value).populate(
+    "user"
+  );
   vacation.denied();
   vacation.notifyEmployee();
 }
@@ -55,5 +55,5 @@ module.exports = {
   actionDenyVacationRequest,
   actionOpenCreateVacation,
   actionSubmitVacationRequest,
-  actionUpdateManager
-}
+  actionUpdateManager,
+};

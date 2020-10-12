@@ -10,7 +10,7 @@ const userSchema = new Schema({
   channelId: { type: "String" },
   vacationBalance: { type: "Number", default: C.DEFAULT_VACATION_BALANCE },
   teamId: { type: "String", required: true },
-  ifManager: { type: "Boolean", default: false }
+  ifManager: { type: "Boolean", default: false },
 });
 
 userSchema.methods.getChannelId = function () {
@@ -52,14 +52,17 @@ userSchema.methods.updateVacationBalance = function (days) {
 };
 
 userSchema.methods.theirManager = function () {
-  return this.model("User").findOne({teamId: this.teamId, ifManager: true})
-}
+  return this.model("User").findOne({ teamId: this.teamId, ifManager: true });
+};
 
 userSchema.methods.setAsManager = async function () {
-  this.model("User").updateOne({teamId: this.teamId, ifManager: true}, {ifManager: false})
+  this.model("User").updateOne(
+    { teamId: this.teamId, ifManager: true },
+    { ifManager: false }
+  );
   this.ifManager = true;
   this.save();
-}
+};
 
 const User = db.model("User", userSchema);
 
@@ -68,7 +71,7 @@ User.createIfNotExists = async function ({
   userName,
   teamId,
   channelId = null,
-  vacationBalance = null
+  vacationBalance = null,
 }) {
   let user = await User.findOne({ userId: userId });
   if (!user) {
