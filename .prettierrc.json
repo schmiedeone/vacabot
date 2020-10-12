@@ -1,0 +1,11 @@
+{
+	"useTabs": true,
+	"semi": true,
+	"singleQuote": false,
+	"bracketSpacing": true,
+	"jsxBracketSameLine": true,
+	"arrowParens": "always",
+	"filePath": "./",
+	"requirePragma": false,
+	"proseWrap": "always"
+}
