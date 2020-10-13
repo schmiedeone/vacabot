@@ -11,6 +11,9 @@
   },
   "devDependencies": {
     "env-cmd": "^10.1.0",
+    "eslint": "^7.11.0",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.0",
     "ngrok": "^3.3.0",
     "nodemon": "^2.0.4"
   },
@@ -31,7 +34,10 @@
   ],
   "nodemonConfig": {
     "verbose": true,
-    "ignore": ["test/*", "docs/*"],
+    "ignore": [
+      "test/*",
+      "docs/*"
+    ],
     "delay": "1000"
   },
   "author": "Schmiede One",
