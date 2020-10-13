@@ -45,5 +45,10 @@
   "bugs": {
     "url": "https://github.com/schmiedeone/vacabot/issues"
   },
-  "homepage": "https://github.com/schmiedeone/vacabot#readme"
+  "homepage": "https://github.com/schmiedeone/vacabot#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
 }
