@@ -9,7 +9,7 @@ const User = require("./models/user");
 
 async function actionSubmitVacationRequest(user, payload) {
   const formData = formSubmitData(payload);
-  vacation = await Vacation.create({ user: user, ...formData });
+  const vacation = await Vacation.create({ user: user, ...formData });
 
   vacation.reduceVacationBalance();
   vacation.notifyManager();
@@ -26,7 +26,7 @@ async function actionDenyVacationRequest(payload) {
 async function actionUpdateManager(responseUrl, user) {
   user.setAsManager();
   triggerSlack(responseUrl, { text: "You have been set as manager!" })
-    .then((res) => console.log("Confirmation given for updating manager!"))
+    .then(() => console.log("Confirmation given for updating manager!"))
     .catch((err) => console.log("Sending confirmation failed!\n", err));
 }
 
