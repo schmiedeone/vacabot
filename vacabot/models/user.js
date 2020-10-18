@@ -1,8 +1,8 @@
-const { Schema } = require("mongoose");
+import { Schema } from "mongoose"
 
-const db = require("../db");
-const { triggerSlack } = require("../helpers");
-const C = require("../consts");
+import db from "../db"
+import { triggerSlack } from "../helpers"
+import C from "../consts"
 
 const userSchema = new Schema({
   userId: { type: "String", required: true, unique: true },
@@ -52,11 +52,11 @@ userSchema.methods.updateVacationBalance = function (days) {
 };
 
 userSchema.methods.theirManager = function () {
-  return this.model("User").findOne({teamId: this.teamId, ifManager: true})
+  return this.model("User").findOne({ teamId: this.teamId, ifManager: true })
 }
 
 userSchema.methods.setAsManager = async function () {
-  this.model("User").updateOne({teamId: this.teamId, ifManager: true}, {ifManager: false})
+  this.model("User").updateOne({ teamId: this.teamId, ifManager: true }, { ifManager: false })
   this.ifManager = true;
   this.save();
 }
@@ -83,4 +83,4 @@ User.createIfNotExists = async function ({
   return user;
 };
 
-module.exports = User;
+export default User;

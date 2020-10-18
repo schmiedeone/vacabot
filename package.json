@@ -10,6 +10,10 @@
     "mongoose": "^5.9.7"
   },
   "devDependencies": {
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/node": "^7.12.1",
+    "@babel/preset-env": "^7.12.1",
     "env-cmd": "^10.1.0",
     "eslint": "^7.11.0",
     "husky": "^4.3.0",
@@ -18,8 +22,9 @@
     "nodemon": "^2.0.4"
   },
   "scripts": {
-    "start": "node index.js",
-    "dev": "env-cmd -f .env nodemon index.js",
+    "start": "node dist",
+    "build": "babel vacabot --out-dir dist",
+    "dev": "env-cmd -f .env nodemon --exec babel-node vacabot/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -36,7 +41,8 @@
     "verbose": true,
     "ignore": [
       "test/*",
-      "docs/*"
+      "docs/*",
+      "dist/*"
     ],
     "delay": "1000"
   },

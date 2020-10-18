@@ -1,4 +1,4 @@
-module.exports = Object.freeze({
+export default Object.freeze({
   SET_MANAGER: 'SET_MANAGER',
   OPEN_DIALOG_CREATE_VACATION: 'OPEN_DIALOG_CREATE_VACATION',
   CHECK_VACATION: 'CHECK_VACATION',

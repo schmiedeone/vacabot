@@ -1,11 +1,11 @@
-const {
+import {
   triggerSlack,
   templateVacationDialog,
   formSubmitData,
-} = require("./helpers");
-const C = require("./consts");
-const Vacation = require("./models/vacation");
-const User = require("./models/user");
+} from "./helpers"
+import C from "./consts"
+import Vacation from "./models/vacation"
+import User from "./models/user"
 
 async function actionSubmitVacationRequest(user, payload) {
   const formData = formSubmitData(payload);
@@ -50,7 +50,7 @@ async function actionCheckVacationBalance(responseUrl, query) {
   });
 }
 
-module.exports = {
+export default {
   actionCheckVacationBalance,
   actionDenyVacationRequest,
   actionOpenCreateVacation,
