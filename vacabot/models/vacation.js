@@ -1,8 +1,8 @@
-const { Schema } = require("mongoose");
+import { Schema } from "mongoose"
 
-const db = require("../db");
-const { triggerSlack, templateApprovalPayload } = require("../helpers");
-const C = require("../consts");
+import db from "../db"
+import { triggerSlack, templateApprovalPayload } from "../helpers"
+import C from "../consts"
 
 const vacationSchema = new Schema({
   user: {
@@ -22,7 +22,7 @@ vacationSchema.methods.reduceVacationBalance = function () {
 
 vacationSchema.methods.notifyManager = function () {
   this.user.theirManager().then((manager) => {
-    if(!manager) {
+    if (!manager) {
       this.user.getChannelId().then((channelId) => {
         triggerSlack(C.POST_MSG_URL, {
           channel: channelId,
@@ -65,4 +65,4 @@ vacationSchema.methods.denied = function () {
 
 const Vacation = db.model("Vacation", vacationSchema);
 
-module.exports = Vacation;
+export default Vacation;

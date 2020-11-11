@@ -1,19 +1,19 @@
-const http = require("http");
-const { parse } = require("querystring");
-const {
+import http from "http"
+import { parse } from "querystring"
+import {
   predictAction,
   predictInteraction,
   logAction
-} = require("./vacabot/helpers");
-const {
+} from "./helpers"
+import {
   actionCheckVacationBalance,
   actionDenyVacationRequest,
   actionOpenCreateVacation,
   actionSubmitVacationRequest,
   actionUpdateManager
-} = require("./vacabot/actions");
-const C = require("./vacabot/consts");
-const User = require("./vacabot/models/user");
+} from "./actions"
+import C from "./consts"
+import User from "./models/user"
 
 function serverHandler(req, res) {
   let body = [];
@@ -24,7 +24,7 @@ function serverHandler(req, res) {
       try {
         body = parse(Buffer.concat(body).toString());
         mainHandler(body);
-      } catch(err) {
+      } catch (err) {
         console.error(err);
       }
       res.writeHead(200, { "content-type": "application/json" });

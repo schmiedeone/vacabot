@@ -1,5 +1,5 @@
-const https = require("https");
-const C = require("./consts");
+import https from "https"
+import C from "./consts"
 
 function triggerSlack(url, reqBody) {
   return new Promise((resolve, reject) => {
@@ -217,7 +217,7 @@ function logAction(action) {
   console.log(`========${action}========`)
 }
 
-module.exports = {
+export default {
   triggerSlack,
   templateApprovalPayload,
   templateVacationDialog,

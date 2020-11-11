@@ -1,3 +1,4 @@
 ngrok
 node_modules/
 .env
+dist

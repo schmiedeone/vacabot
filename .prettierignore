@@ -1,3 +1,4 @@
 # Ignore directories
 node_modules
 docs
+dist

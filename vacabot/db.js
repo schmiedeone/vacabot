@@ -1,5 +1,5 @@
-var mongoose = require("mongoose");
-const C = require("./consts");
+import mongoose from "mongoose"
+import C from "./consts"
 
 const db = mongoose.createConnection(C.DB_CONNECTION_URL, {
   useNewUrlParser: true,
@@ -7,4 +7,4 @@ const db = mongoose.createConnection(C.DB_CONNECTION_URL, {
   useCreateIndex: true,
 });
 
-module.exports = db;
+export default db;
