@@ -9,7 +9,7 @@ const User = require('./models/user');
 
 async function actionSubmitVacationRequest(user, payload) {
   const formData = formSubmitData(payload);
-  vacation = await Vacation.create({ user: user, ...formData });
+  const vacation = await Vacation.create({ user: user, ...formData });
 
   vacation.reduceVacationBalance();
   vacation.notifyManager();

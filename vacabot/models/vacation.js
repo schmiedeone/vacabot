@@ -38,7 +38,7 @@ vacationSchema.methods.notifyManager = function () {
         ...payload,
         channel: channelId,
       })
-        .then((data) => console.log("Manager Notified for Vacation Request!"))
+        .then(() => console.log("Manager Notified for Vacation Request!"))
         .catch(console.log);
     });
   });
@@ -50,7 +50,7 @@ vacationSchema.methods.notifyEmployee = function () {
       channel: channelId,
       text: `Your vacation from ${this.from} to ${this.to} has been denied!`,
     })
-      .then((data) => console.log("Employee Notified for Request Deny!"))
+      .then(() => console.log("Employee Notified for Request Deny!"))
       .catch(console.log);
   });
 };
