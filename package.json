@@ -16,6 +16,7 @@
     "lint-staged": "^10.4.0",
     "ngrok": "^3.3.0",
     "nodemon": "^2.0.4"
+    "prettier": "2.1.2"
   },
   "scripts": {
     "start": "node index.js",

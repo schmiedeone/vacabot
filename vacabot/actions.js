@@ -2,10 +2,10 @@ const {
   triggerSlack,
   templateVacationDialog,
   formSubmitData,
-} = require("./helpers");
-const C = require("./consts");
-const Vacation = require("./models/vacation");
-const User = require("./models/user");
+} = require('./helpers');
+const C = require('./consts');
+const Vacation = require('./models/vacation');
+const User = require('./models/user');
 
 async function actionSubmitVacationRequest(user, payload) {
   const formData = formSubmitData(payload);
@@ -16,18 +16,18 @@ async function actionSubmitVacationRequest(user, payload) {
 }
 
 async function actionDenyVacationRequest(payload) {
-  const vacation = await Vacation.findById(
-    payload.actions[0].value
-  ).populate("user");
+  const vacation = await Vacation.findById(payload.actions[0].value).populate(
+    'user',
+  );
   vacation.denied();
   vacation.notifyEmployee();
 }
 
 async function actionUpdateManager(responseUrl, user) {
   user.setAsManager();
-  triggerSlack(responseUrl, { text: "You have been set as manager!" })
-    .then(() => console.log("Confirmation given for updating manager!"))
-    .catch((err) => console.log("Sending confirmation failed!\n", err));
+  triggerSlack(responseUrl, { text: 'You have been set as manager!' })
+    .then((res) => console.log('Confirmation given for updating manager!'))
+    .catch((err) => console.log('Sending confirmation failed!\n', err));
 }
 
 async function actionOpenCreateVacation(triggerId, user) {
@@ -39,7 +39,7 @@ async function actionOpenCreateVacation(triggerId, user) {
 
 async function actionCheckVacationBalance(responseUrl, query) {
   // Query should send userId and that should be used as being unique
-  const userName = query.substring(1).split(" ")[0];
+  const userName = query.substring(1).split(' ')[0];
   let employee = await User.findOne({ userName: userName });
   let days = C.DEFAULT_VACATION_BALANCE;
   if (employee) {
@@ -55,5 +55,5 @@ module.exports = {
   actionDenyVacationRequest,
   actionOpenCreateVacation,
   actionSubmitVacationRequest,
-  actionUpdateManager
-}
+  actionUpdateManager,
+};
